@@ -6,16 +6,16 @@ To use:
 
 Tomcat 7 ClickStack for CloudBees PaaS. Deploy any Servlet2.x/3.x/JSP.
 
-# Pre-requisite
+# Pre-requisites
 
 * OpenJDK 6
-* Bash shellA
+* Bash shell
 * Make tools
 * Apache Maven
 
 # Build 
 
-    $ make
+    $ make clean pkg
 
 After successful build tomcat7-plugin.zip is created and can be uploaded to the CloudBees platform location by the CloudBees team.
 
@@ -46,10 +46,7 @@ Once the plugin is published to a public URL, you can update an app to use it wi
 
 
 ## TODOs
-- [x] Support injection of Database resources
-- [x] Support injection of Mail resources
 - [ ] Add idle/active timeouts
-- [x] Add stats polling support
 - [ ] Add private app support (perhaps via router instead?)
-- [ ] Add mysql driver jar to Tomcat lib (TBD)
+- [ ] Add cloudbees-web.xml support
 

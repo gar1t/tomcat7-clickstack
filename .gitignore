@@ -5,7 +5,6 @@
 *.iml
 .idea
 /lib
-/java
 /tomcat7-plugin.zip
 /pkg
 /s3cfg

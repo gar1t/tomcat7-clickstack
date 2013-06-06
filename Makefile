@@ -3,7 +3,7 @@ publish_bucket = cloudbees-clickstack
 publish_repo = testing
 publish_url = s3://$(publish_bucket)/$(publish_repo)/
 
-deps = lib lib/tomcat7.zip lib/jmxtrans-agent.jar java
+deps = lib/tomcat7.zip lib/jmxtrans-agent.jar
 
 pkg_files = control functions server setup lib java conf
 
@@ -11,6 +11,13 @@ include plugin.mk
 
 lib:
 	mkdir -p lib
+
+deps:
+	cd java; make deps
+
+clean:
+	rm -rf lib
+	cd java; make clean
 
 tomcat7_ver = 7.0.40
 tomcat7_url = http://mirror.nexcess.net/apache/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
@@ -39,14 +46,7 @@ jmxtrans_agent_ver = 1.0.0
 jmxtrans_agent_url = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
 jmxtrans_agent_md5 = 9dd2bdd2adb7df9dbae093a2c6b08678
 
-lib/jmxtrans-agent.jar:
+lib/jmxtrans-agent.jar: lib
 	mkdir -p lib
 	curl -fLo lib/jmxtrans-agent.jar "$(jmxtrans_agent_url)"
 	$(call check-md5,lib/jmxtrans-agent.jar,$(jmxtrans_agent_md5))
-
-java_plugin_gitrepo = git://github.com/CloudBees-community/java-clickstack.git
-
-java:
-	git clone $(java_plugin_gitrepo) java
-	rm -rf java/.git
-	cd java; make clean; make deps
