@@ -6,7 +6,7 @@ To use:
 
 Tomcat 7 ClickStack for CloudBees PaaS. Deploy any Servlet2.x/3.x/JSP.
 
-# Pre-requisite
+# Pre-requisites
 
 * OpenJDK 6
 * Bash shell
