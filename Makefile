@@ -3,7 +3,7 @@ publish_bucket = cloudbees-clickstack
 publish_repo = testing
 publish_url = s3://$(publish_bucket)/$(publish_repo)/
 
-deps = lib lib/tomcat7.zip lib/jmxtrans-agent.jar
+deps = lib/tomcat7.zip lib/jmxtrans-agent.jar
 
 pkg_files = control functions server setup lib java conf
 
@@ -11,6 +11,13 @@ include plugin.mk
 
 lib:
 	mkdir -p lib
+
+deps:
+	cd java; make deps
+
+clean:
+	rm -rf lib
+	cd java; make clean
 
 tomcat7_ver = 7.0.40
 tomcat7_url = http://mirror.nexcess.net/apache/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
