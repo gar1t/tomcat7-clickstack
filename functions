@@ -72,6 +72,7 @@ install_app() {
     # contain twice the same file.
     _app_root="$catalina_base/webapps/ROOT"
     unzip -qod "$_app_root" "$pkg_dir/app.war"
+    chmod -R g+w "$_app_root"
 
     # Allows for server.xml override by customers.
     if [ -e "$_app_root/META-INF/server.xml" ]; then
