@@ -60,6 +60,7 @@ install_server_config() {
     # the metadata by the genapp-setup-tomcat7 jar.
     echo "Installing server config"
     mkdir -pm 770 "$catalina_base/conf"
+    mkdir -pm 770 "$catalina_base/logs"
     install -m 640 "$plugin_dir/server/conf/"* "$catalina_base/conf/"
 }
 
