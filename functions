@@ -82,8 +82,9 @@ install_app() {
 
     # Allows to add some jars in the classpath if necessary.
     for _file in "$_app_root/META-INF/lib/"*.jar; do
-        if [ -e "_file" ]; then
-            cp "$_file" "$tomcat7_dir/lib/"        
+        if [ -e "$_file" ]; then
+            echo "Copy in tomcat_home/lib the extra jar provided in war file: $_file -> $tomcat7_dir/lib/"
+            cp "$_file" "$tomcat7_dir/lib/"
         fi
     done
 }
