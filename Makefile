@@ -3,7 +3,7 @@ publish_bucket = cloudbees-clickstack
 publish_repo = testing
 publish_url = s3://$(publish_bucket)/$(publish_repo)/
 
-deps = lib/tomcat7.zip lib/jmxtrans-agent.jar
+deps = lib/tomcat7.zip lib/cloudbees-jmx-invoker.jar lib/jmxtrans-agent.jar
 
 pkg_files = control functions server setup lib java conf
 
@@ -50,3 +50,12 @@ lib/jmxtrans-agent.jar: lib
 	mkdir -p lib
 	curl -fLo lib/jmxtrans-agent.jar "$(jmxtrans_agent_url)"
 	$(call check-md5,lib/jmxtrans-agent.jar,$(jmxtrans_agent_md5))
+
+jmx_invoker_ver = 1.0.0
+jmx_invoker_src = https://repository-cyrille-leclerc.forge.cloudbees.com/snapshot/com/cloudbees/cloudbees-jmx-invoker/1.0.0-SNAPSHOT/cloudbees-jmx-invoker-1.0.0-20130709.162935-5-jar-with-dependencies.jar
+jmx_invoker_md5 = b9f12b7a5dceb68f8df6f22007e54bcf
+
+lib/cloudbees-jmx-invoker.jar: lib
+	mkdir -p lib
+	curl -fLo lib/cloudbees-jmx-invoker-jar-with-dependencies.jar "$(jmx_invoker_src)"
+	# $(call check-md5,lib/cloudbees-jmx-invoker-jar-with-dependencies.jar,$(jmx_invoker_md5))
