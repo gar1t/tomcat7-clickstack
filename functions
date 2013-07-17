@@ -35,6 +35,11 @@ install_tomcat7() {
     cp "$plugin_dir/lib/genapp-setup-tomcat7.jar" "$tomcat7_dir/lib/"
 }
 
+install_jmx_invoker() {
+   cp $plugin_dir/lib/cloudbees-jmx-invoker-jar-with-dependencies.jar $genapp_dir/lib/
+   install -m 750 $plugin_dir/control/jmx_invoker $control_dir
+}
+
 install_jmxtrans_agent() {
     # The jmxtrans agent takes care of metrics reporting 
     # which can be accessed with the control script stats-appstat
@@ -109,6 +114,11 @@ write_config() {
 
     echo "port=$app_port" >> "$config"
     echo "java=\"$(find_java)\"" >> "$config"
+    java_home="$(dirname $(dirname $java))"
+    echo "Using JAVA_HOME at $java_home"
+    echo "JAVA_HOME=\"$java_home\"" >> "$config"
+    echo "genapp_dir=\"$genapp_dir\"" >> "$config"
+
     echo "catalina_opts=\"-Dport.http=$app_port\"" >> "$config"
 
     # We installed additional libraries in $tomcat7_dir/lib at the 
