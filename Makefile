@@ -52,8 +52,8 @@ lib/jmxtrans-agent.jar: lib
 	$(call check-md5,lib/jmxtrans-agent.jar,$(jmxtrans_agent_md5))
 
 jmx_invoker_ver = 1.0.0
-jmx_invoker_src = https://repository-community.forge.cloudbees.com/snapshot/com/cloudbees/cloudbees-jmx-invoker/1.0.1-SNAPSHOT/cloudbees-jmx-invoker-1.0.1-20130715.154959-1-jar-with-dependencies.jar
-jmx_invoker_md5 = 000374ef1a13095984302532bb884242
+jmx_invoker_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-jmx-invoker/1.0.1/cloudbees-jmx-invoker-1.0.1-jar-with-dependencies.jar
+jmx_invoker_md5 = b789a18ad28ce5efb62fd9d62e7c7de3
 
 lib/cloudbees-jmx-invoker.jar: lib
 	mkdir -p lib
