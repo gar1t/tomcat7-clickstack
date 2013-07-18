@@ -18,11 +18,17 @@ public class ContextXmlBuilder {
     private Document contextDocument;
     private Metadata metadata;
     private List<String> databaseProperties = Arrays.asList("minIdle", "maxIdle", "maxActive", "maxWait",
+            "initialSize",
             "validationQuery", "validationQueryTimeout", "testOnBorrow", "testOnReturn",
             "timeBetweenEvictionRunsMillis", "numTestsPerEvictionRun", "minEvictableIdleTimeMillis", "testWhileIdle",
             "removeAbandoned", "removeAbandonedTimeout", "logAbandoned", "defaultAutoCommit", "defaultReadOnly",
             "defaultTransactionIsolation", "poolPreparedStatements", "maxOpenPreparedStatements", "defaultCatalog",
-            "connectionInitSqls", "connectionProperties", "accessToUnderlyingConnectionAllowed");
+            "connectionInitSqls", "connectionProperties", "accessToUnderlyingConnectionAllowed",
+            /* Tomcat JDBC Enhanced Attributes */
+            "factory", "type", "validatorClassName", "initSQL", "jdbcInterceptors", "validationInterval", "jmxEnabled",
+            "fairQueue", "abandonWhenPercentageFull", "maxAge", "useEquals", "suspectTimeout", "rollbackOnReturn",
+            "commitOnReturn", "alternateUsernameAllowed", "useDisposableConnectionFacade", "logValidationErrors",
+            "propagateInterruptState");
 
 
     public ContextXmlBuilder (Metadata metadata) {
