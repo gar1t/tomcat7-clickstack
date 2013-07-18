@@ -51,8 +51,8 @@ lib/jmxtrans-agent.jar: lib
 	curl -fLo lib/jmxtrans-agent.jar "$(jmxtrans_agent_url)"
 	$(call check-md5,lib/jmxtrans-agent.jar,$(jmxtrans_agent_md5))
 
-jmx_invoker_ver = 1.0.0
-jmx_invoker_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-jmx-invoker/1.0.1/cloudbees-jmx-invoker-1.0.1-jar-with-dependencies.jar
+jmx_invoker_ver = 1.0.1
+jmx_invoker_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-jmx-invoker/$(jmx_invoker_ver)/cloudbees-jmx-invoker-$(jmx_invoker_ver)-jar-with-dependencies.jar
 jmx_invoker_md5 = b789a18ad28ce5efb62fd9d62e7c7de3
 
 lib/cloudbees-jmx-invoker.jar: lib
