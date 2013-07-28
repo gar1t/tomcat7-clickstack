@@ -2,6 +2,8 @@ package com.cloudbees.genapp.tomcat7;
 
 import com.cloudbees.genapp.metadata.*;
 
+import java.io.File;
+
 /*
  * This class contains the main method to get the Genapp metadata and configure Tomcat 7.
  */
@@ -22,7 +24,9 @@ public class Setup {
 
         EnvBuilder safeEnvBuilder = new EnvBuilder(true, false, metadata);
         safeEnvBuilder.writeControlFile("/env_safe");
-        ContextXmlBuilder contextXmlBuilder = new ContextXmlBuilder(metadata);
-        contextXmlBuilder.injectToFile("/server/conf/context.xml");
+
+        File appDir = new File(System.getenv("app_dir"));
+        ContextXmlBuilder contextXmlBuilder = new ContextXmlBuilder(metadata, appDir);
+        contextXmlBuilder.buildTomcatConfigurationFiles("/server/conf/server.xml","/server/conf/context.xml");
     }
 }

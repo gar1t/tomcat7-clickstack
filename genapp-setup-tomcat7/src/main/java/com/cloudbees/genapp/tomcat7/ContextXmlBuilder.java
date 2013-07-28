@@ -1,13 +1,13 @@
 package com.cloudbees.genapp.tomcat7;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
+import com.cloudbees.genapp.XmlUtils;
 import org.w3c.dom.*;
 
 import com.cloudbees.genapp.metadata.Metadata;
@@ -15,9 +15,8 @@ import com.cloudbees.genapp.metadata.resource.*;
 
 public class ContextXmlBuilder {
 
-    private Document contextDocument;
     private Metadata metadata;
-    private List<String> databaseProperties = Arrays.asList("minIdle", "maxIdle", "maxActive", "maxWait",
+    private Set<String> databaseProperties = new HashSet(Arrays.asList("minIdle", "maxIdle", "maxActive", "maxWait",
             "initialSize",
             "validationQuery", "validationQueryTimeout", "testOnBorrow", "testOnReturn",
             "timeBetweenEvictionRunsMillis", "numTestsPerEvictionRun", "minEvictableIdleTimeMillis", "testWhileIdle",
@@ -28,29 +27,21 @@ public class ContextXmlBuilder {
             "factory", "type", "validatorClassName", "initSQL", "jdbcInterceptors", "validationInterval", "jmxEnabled",
             "fairQueue", "abandonWhenPercentageFull", "maxAge", "useEquals", "suspectTimeout", "rollbackOnReturn",
             "commitOnReturn", "alternateUsernameAllowed", "useDisposableConnectionFacade", "logValidationErrors",
-            "propagateInterruptState");
+            "propagateInterruptState"));
+    private File appDir;
 
-
-    public ContextXmlBuilder (Metadata metadata) {
+    public ContextXmlBuilder(Metadata metadata, File appDir) {
         this.metadata = metadata;
-    }
-
-    private ContextXmlBuilder addResources(Metadata metadata) {
-        for (Resource resource : metadata.getResources().values()) {
-            if (resource instanceof Database) {
-                addDatabase((Database) resource);
-            } else if (resource instanceof Email) {
-                addEmail((Email) resource);
-            } else if (resource instanceof SessionStore) {
-                addSessionStore((SessionStore) resource);
-            }
-
+        if (!appDir.exists()) {
+            throw new IllegalArgumentException("appDir does not exist '" + appDir.getAbsolutePath() + "'");
+        } else if (!appDir.isDirectory()) {
+            throw new IllegalArgumentException("appDir must be a directory '" + appDir.getAbsolutePath() + "'");
         }
-        return this;
+        this.appDir = appDir;
     }
 
-    private ContextXmlBuilder addDatabase(Database database) {
-        Element e = contextDocument.createElement("Resource");
+    protected ContextXmlBuilder addDatabase(Database database, Document serverDocument, Document contextXmlDocument) {
+        Element e = contextXmlDocument.createElement("Resource");
         e.setAttribute("name", "jdbc/" + database.getName());
         e.setAttribute("auth", "Container");
         e.setAttribute("type", "javax.sql.DataSource");
@@ -59,17 +50,35 @@ public class ContextXmlBuilder {
         e.setAttribute("username", database.getUsername());
         e.setAttribute("password", database.getPassword());
 
-        Map<String, String> optionalParameters = database.filterProperties(databaseProperties);
-        for (Map.Entry<String, String> entry : optionalParameters.entrySet()) {
-            e.setAttribute(entry.getKey(), entry.getValue());
+        // by default, use use tomcat-jdbc-pool
+        e.setAttribute("factory", "org.apache.tomcat.jdbc.pool.DataSourceFactory");
+
+        // by default max to 20 connections which is the limit of CloudBees MySQL databases
+        e.setAttribute("maxActive", "20");
+        e.setAttribute("maxIdle", "10");
+        e.setAttribute("minIdle", "1");
+
+        // test on borrow and while idle to release idle connections
+        e.setAttribute("testOnBorrow", "true");
+        e.setAttribute("testWhileIdle", "true");
+        e.setAttribute("validationQuery", database.getValidationQuery());
+        e.setAttribute("validationInterval", "5000"); // 5 secs
+
+        // all the parameters can be overwritten
+        for (Map.Entry<String, String> entry : database.getProperties().entrySet()) {
+            if (databaseProperties.contains(entry.getKey())) {
+                e.setAttribute(entry.getKey(), entry.getValue());
+            } else {
+                System.out.println("Ignore unknown datasource property '" + entry + "'");
+            }
         }
 
-        contextDocument.getDocumentElement().appendChild(e);
+        contextXmlDocument.getDocumentElement().appendChild(e);
         return this;
     }
-    
-    private ContextXmlBuilder addEmail(Email email) {
-        Element e = contextDocument.createElement("Resource");
+
+    protected ContextXmlBuilder addEmail(Email email, Document serverDocument, Document contextXmlDocument) {
+        Element e = contextXmlDocument.createElement("Resource");
         e.setAttribute("name", email.getName());
         e.setAttribute("auth", "Container");
         e.setAttribute("type", "javax.mail.Session");
@@ -78,13 +87,12 @@ public class ContextXmlBuilder {
         e.setAttribute("mail.smtp.host", email.getHost());
         e.setAttribute("mail.smtp.auth", "true");
 
-        contextDocument.getDocumentElement().appendChild(e);
+        contextXmlDocument.getDocumentElement().appendChild(e);
         return this;
     }
 
-
-    private ContextXmlBuilder addSessionStore(SessionStore store) {
-        Element e = contextDocument.createElement("Manager");
+    protected ContextXmlBuilder addSessionStore(SessionStore store, Document serverDocument, Document contextXmlDocument) {
+        Element e = contextXmlDocument.createElement("Manager");
         e.setAttribute("className", "de.javakaffee.web.msm.MemcachedBackupSessionManager");
         e.setAttribute("transcoderFactoryClass", "de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory");
         e.setAttribute("memcachedProtocol", "binary");
@@ -95,52 +103,82 @@ public class ContextXmlBuilder {
         e.setAttribute("username", store.getUsername());
         e.setAttribute("password", store.getPassword());
 
-        contextDocument.getDocumentElement().appendChild(e);
+        contextXmlDocument.getDocumentElement().appendChild(e);
         return this;
     }
 
-    private ContextXmlBuilder fromExistingDocument(Document contextDocument) {
-        String rootElementName = contextDocument.getDocumentElement().getNodeName();
-        if (!rootElementName.equals("Context"))
-            throw new IllegalArgumentException("Document is missing root <Context> element");
-        this.contextDocument = contextDocument;
-        return this;
-    }
+    protected ContextXmlBuilder addPrivateAppValve(Metadata metadata, Document serverXmlDocument, Document contextXmlDocument) {
+        String section = "privateApp";
 
-    private ContextXmlBuilder fromExistingDocument(File file) throws Exception {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document document = documentBuilder.parse(file);
-        fromExistingDocument(document);
-        return this;
-    }
+        if (metadata.getRuntimeProperty(section) == null) {
+            return this;
+        }
+        System.out.println("Insert PrivateAppValve");
 
-    private Document buildContextDocument() throws ParserConfigurationException {
-        if (contextDocument == null) {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            contextDocument = documentBuilder.newDocument();
-            Element rootContextDocumentElement = contextDocument.createElement("Context");
-            contextDocument.appendChild(rootContextDocumentElement);
+        Set<String> privateAppProperties = new HashSet<String>(Arrays.asList(
+                "className", "secretKey",
+                "authenticationEntryPoint",
+                "authenticationParameterName", "authenticationHeaderName", "authenticationUri", "authenticationCookieName",
+                "enabled", "realmName", "ignoredUriRegexp"));
+
+        Element privateAppValve = serverXmlDocument.createElement("Valve");
+
+        privateAppValve.setAttribute("className", "com.cloudbees.tomcat.valves.PrivateAppValve");
+
+
+        for (Map.Entry<String, String> entry : metadata.getRuntimeProperty(section).entrySet()) {
+            if (privateAppProperties.contains(entry.getKey())) {
+                privateAppValve.setAttribute(entry.getKey(), entry.getValue());
+            } else {
+                System.out.println("privateAppValve: ignore unknown property '" + entry.getKey() + "'");
+            }
+
+        }
+        if (privateAppValve.getAttribute("secretKey").isEmpty()) {
+            throw new IllegalStateException("Invalid '" + section +
+                    "' configuration, '" + section + "." + "secretKey' is missing");
         }
 
-        addResources(metadata);
-        return contextDocument;
+        Element remoteIpValve = XmlUtils.getUniqueElement(serverXmlDocument, "//Valve[@className='org.apache.catalina.valves.RemoteIpValve']");
+        XmlUtils.insertSiblingAfter(privateAppValve, remoteIpValve);
+        return this;
     }
 
-    public void injectToFile(String contextPath) throws Exception {
-        Map<String, String> env = System.getenv();
-        String contextAbsolutePath = env.get("app_dir") + contextPath;
-        File contextFile = new File(contextAbsolutePath);
+    protected void buildTomcatConfiguration(Metadata metadata, Document serverXmlDocument, Document contextXmlDocument) throws ParserConfigurationException {
 
-        Document contextXml = fromExistingDocument(contextFile).buildContextDocument();
+        String message = "File generated by tomcat7-clickstack at " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date());
 
-        // Write the content into XML file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
+        serverXmlDocument.appendChild(serverXmlDocument.createComment(message));
+        contextXmlDocument.appendChild(contextXmlDocument.createComment(message));
 
-        transformer.transform(new DOMSource(contextXml), new StreamResult(contextFile));
+        for (Resource resource : metadata.getResources().values()) {
+            if (resource instanceof Database) {
+                addDatabase((Database) resource, serverXmlDocument, contextXmlDocument);
+            } else if (resource instanceof Email) {
+                addEmail((Email) resource, serverXmlDocument, contextXmlDocument);
+            } else if (resource instanceof SessionStore) {
+                addSessionStore((SessionStore) resource, serverXmlDocument, contextXmlDocument);
+            }
+        }
+        addPrivateAppValve(metadata, serverXmlDocument, contextXmlDocument);
+    }
+
+    /**
+     * @param serverXmlFilePath relative to {@link #appDir}
+     * @param contextXmlFilePath relative to {@link #appDir}
+     */
+    public void buildTomcatConfigurationFiles(String serverXmlFilePath, String contextXmlFilePath) throws Exception {
+
+        File contextXmlFile = new File(appDir, contextXmlFilePath);
+        Document contextXmlDocument = XmlUtils.loadXmlDocumentFromFile(contextXmlFile);
+        XmlUtils.checkRootElement(contextXmlDocument, "Context");
+
+        File serverXmlFile = new File(appDir, serverXmlFilePath);
+        Document serverXmlDocument = XmlUtils.loadXmlDocumentFromFile(serverXmlFile);
+
+        this.buildTomcatConfiguration(metadata, serverXmlDocument, contextXmlDocument);
+
+        XmlUtils.flush(contextXmlDocument, new FileOutputStream(contextXmlFile));
+        XmlUtils.flush(serverXmlDocument, new FileOutputStream(serverXmlFile));
     }
 }

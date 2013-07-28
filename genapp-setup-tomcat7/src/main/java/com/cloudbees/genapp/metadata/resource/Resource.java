@@ -105,7 +105,7 @@ public class Resource {
      * @return The properties associated to the specified filters.
      */
 
-    public Map<String, String> filterProperties(List<String> filter) {
+    public Map<String, String> filterProperties(Collection<String> filter) {
         Map<String, String> filteredProperties = new HashMap<String, String>();
         for (String propertyName : filter) {
             if (properties.containsKey(propertyName)){

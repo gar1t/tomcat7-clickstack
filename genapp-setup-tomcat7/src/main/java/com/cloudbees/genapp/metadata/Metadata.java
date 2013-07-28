@@ -16,9 +16,13 @@ package com.cloudbees.genapp.metadata;
  * limitations under the License.
  */
 
+import com.cloudbees.genapp.Strings2;
 import com.cloudbees.genapp.metadata.resource.*;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 
@@ -35,19 +39,26 @@ public class Metadata {
 
     /**
      * This constructor is used by the Builder subclass to create a new Metadata instance
-     * @param resources A map of the GenApp resources
-     * @param environment A map of the environment variables
+     *
+     * @param resources         A map of the GenApp resources
+     * @param environment       A map of the environment variables
      * @param runtimeProperties A map of RuntimeProperties
      */
     protected Metadata(Map<String, Resource> resources, Map<String, String> environment,
-                    Map<String, RuntimeProperty> runtimeProperties) {
+                       Map<String, RuntimeProperty> runtimeProperties) {
         this.resources = resources;
         this.environment = environment;
         this.runtimeProperties = runtimeProperties;
     }
 
-    public Resource getResource(String resourceName) {
-        return resources.get(resourceName);
+    public Metadata() {
+        this.resources = new HashMap<String, Resource>();
+        this.environment = new HashMap<String, String>();
+        this.runtimeProperties = new HashMap<String, RuntimeProperty>();
+    }
+
+    public <R extends Resource> R getResource(String resourceName) {
+        return (R) resources.get(resourceName);
     }
 
     public Map<String, Resource> getResources() {
@@ -62,12 +73,59 @@ public class Metadata {
         return environment;
     }
 
-    public Map<String, String> getRuntimeProperty(String parent) {
-        return runtimeProperties.get(parent).getParameters();
+    /**
+     * @throws NullPointerException if parent property does not exist
+     */
+    @Nullable
+    public Map<String, String> getRuntimeProperty(String section) {
+        RuntimeProperty runtimeProperty = runtimeProperties.get(section);
+        if (runtimeProperty == null) {
+            return null;
+        }
+        return runtimeProperty.getParameters();
     }
 
+    @Nullable
     public String getRuntimeParameter(String parent, String propertyName) {
-        return runtimeProperties.get(parent).getParameter(propertyName);
+        RuntimeProperty runtimeProperty = runtimeProperties.get(parent);
+        if (runtimeProperty == null) {
+            return null;
+        }
+        return runtimeProperty.getParameter(propertyName);
+    }
+
+    public String getRuntimeParameter(String parent, String propertyName, String defaultValue) {
+        RuntimeProperty runtimeProperty = runtimeProperties.get(parent);
+        if (runtimeProperty == null) {
+            return defaultValue;
+        }
+        String value = runtimeProperty.getParameter(propertyName);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    public void setRuntimeParameter(String parameter, String value) {
+        String section = Strings2.substringBeforeFirst(parameter, '.');
+        String property = Strings2.substringAfterFirst(parameter, '.');
+        if (section == null) {
+            throw new IllegalArgumentException("no key found in '" + parameter + "'");
+        }
+
+        if (property == null)
+            throw new IllegalArgumentException("no property found in '" + parameter + "'");
+
+        setRuntimeParameter(section, property, value);
+    }
+
+    public void setRuntimeParameter(String section, String property, String value) {
+        RuntimeProperty runtimeProperty = this.runtimeProperties.get(section);
+        if (runtimeProperty == null) {
+            runtimeProperty = new RuntimeProperty(section);
+            runtimeProperties.put(section, runtimeProperty);
+        }
+        runtimeProperty.getParameters().put(property, value);
     }
 
     /**
@@ -79,6 +137,7 @@ public class Metadata {
         /**
          * This method parses a metadata.json file and returns a new Metadata instance containing the
          * metadata that has been parsed.
+         *
          * @param metadataFile The absolute path to the metadata.json file to be parsed.
          * @return A new Metadata instance, containing the parameters from the metadata.json file.
          * @throws java.io.IOException
@@ -94,29 +153,63 @@ public class Metadata {
 
         /**
          * This method is called from the fromFile method to parse json from a stream.
+         *
          * @param metadataInputStream An InputStream to read the JSON metadata from.
          * @return A new Metadata instance, containing all resources parsed
-         * from the JSON metadata given as input.
+         *         from the JSON metadata given as input.
          * @throws IOException
          */
         public static Metadata fromStream(InputStream metadataInputStream) throws IOException {
             ObjectMapper metadataObjectMapper = new ObjectMapper();
 
             JsonNode metadataRootNode = metadataObjectMapper.readTree(metadataInputStream);
+
+            return fromJson(metadataRootNode);
+        }
+
+        /**
+         * This method is called from the fromStream method to parse json from a stream.
+         *
+         * @param metadataRootNode the JSON metadata from.
+         * @return A new Metadata instance, containing all resources parsed
+         *         from the JSON metadata given as input.
+         * @throws IOException
+         */
+        public static Metadata fromJson(JsonNode metadataRootNode) throws IOException {
+
             Builder metadataBuilder = new Builder();
 
             return metadataBuilder.buildResources(metadataRootNode);
         }
 
         /**
+         * This method is called from the fromStream method to parse json from a stream.
+         *
+         * @param metadata the JSON metadata.
+         * @return A new Metadata instance, containing all resources parsed
+         *         from the JSON metadata given as input.
+         * @throws IOException
+         */
+        public static Metadata fromJsonString(String metadata, boolean allowSingleQuotes) throws IOException {
+
+            ObjectMapper metadataObjectMapper = new ObjectMapper();
+            metadataObjectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+
+            JsonNode metadataRootNode = metadataObjectMapper.readTree(metadata);
+
+            return fromJson(metadataRootNode);
+        }
+
+        /**
          * This method is called from the fromStream method to parse JSON metadata into a new Metadata instance.
+         *
          * @param metadataRootNode The root node of the JSON metadata to be parsed.
          * @return A new Metadata instance containing all parsed metadata.
-         **/
+         */
         private Metadata buildResources(JsonNode metadataRootNode) {
 
             Map<String, Resource> resources = new TreeMap<String, Resource>();
-            Map<String, String> environment = new TreeMap<String,String>();
+            Map<String, String> environment = new TreeMap<String, String>();
             Map<String, RuntimeProperty> runtimeProperties = new TreeMap<String, RuntimeProperty>();
 
             /**
@@ -147,7 +240,7 @@ public class Metadata {
                     // We get environment variables from the metadata when we iterate over app.env
                     if (id.equals("app") && entryName.equals("env")) {
                         for (Iterator<Map.Entry<String, JsonNode>> envVariables = entryValueNode.fields();
-                             envVariables.hasNext();) {
+                             envVariables.hasNext(); ) {
                             Map.Entry<String, JsonNode> envVariable = envVariables.next();
                             String envName = envVariable.getKey();
                             JsonNode envValue = envVariable.getValue();
@@ -162,7 +255,7 @@ public class Metadata {
                 // We check if the children node we are currently iterating upon is a resource.
                 if (resource != null) {
                     resources.put(resource.getName(), resource);
-                // Otherwise, if it wasn't a resource nor the "app" field, it is composed of runtime parameters.
+                    // Otherwise, if it wasn't a resource nor the "app" field, it is composed of runtime parameters.
                 } else if (!id.equals("app")) {
                     runtimeProperties.put(id, new RuntimeProperty(id, entryMetadata));
                 }

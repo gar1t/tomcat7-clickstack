@@ -3,7 +3,7 @@ publish_bucket = cloudbees-clickstack
 publish_repo = testing
 publish_url = s3://$(publish_bucket)/$(publish_repo)/
 
-deps = lib/tomcat7.zip lib/cloudbees-jmx-invoker.jar lib/jmxtrans-agent.jar
+deps = lib/tomcat7.zip lib/cloudbees-jmx-invoker.jar lib/jmxtrans-agent.jar lib/cloudbees-web-container-extras.jar
 
 pkg_files = control functions server setup lib java conf
 
@@ -59,3 +59,12 @@ lib/cloudbees-jmx-invoker.jar: lib
 	mkdir -p lib
 	curl -fLo lib/cloudbees-jmx-invoker-jar-with-dependencies.jar "$(jmx_invoker_src)"
 	# $(call check-md5,lib/cloudbees-jmx-invoker-jar-with-dependencies.jar,$(jmx_invoker_md5))
+
+cloudbees_web_container_extras_ver = 1.0.0
+cloudbees_web_container_extras_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-web-container-extras/$(cloudbees_web_container_extras_ver)/cloudbees-web-container-extras-$(cloudbees_web_container_extras_ver).jar
+cloudbees_web_container_extras_md5 = 6757957008d09050f3e4352a827d876c
+
+lib/cloudbees-web-container-extras.jar: lib
+	mkdir -p lib
+	curl -fLo lib/cloudbees-web-container-extras.jar "$(cloudbees_web_container_extras_src)"
+	$(call check-md5,lib/cloudbees-web-container-extras.jar,$(cloudbees_web_container_extras_md5))
