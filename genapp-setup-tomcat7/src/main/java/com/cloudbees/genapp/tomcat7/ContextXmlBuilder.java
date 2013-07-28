@@ -117,7 +117,7 @@ public class ContextXmlBuilder {
 
         Set<String> privateAppProperties = new HashSet<String>(Arrays.asList(
                 "className", "secretKey",
-                "authenticationEntryPoint",
+                "authenticationEntryPointName",
                 "authenticationParameterName", "authenticationHeaderName", "authenticationUri", "authenticationCookieName",
                 "enabled", "realmName", "ignoredUriRegexp"));
 

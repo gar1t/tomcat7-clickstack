@@ -56,9 +56,37 @@ public class ContextXmlBuilderTest {
                 "    'secretKey': 'ze-supper-secret' \n" +
                 "}\n" +
                 "}";
-        Metadata metadata = Metadata.Builder.fromJsonString(json, true);
-        ContextXmlBuilder contextXmlBuilder = new ContextXmlBuilder(metadata, appDir);
 
+        String xml = "" +
+                "<Valve className='com.cloudbees.tomcat.valves.PrivateAppValve' \n" +
+                "   secretKey='ze-supper-secret'/>";
+        test_private_app_valve(json, xml);
+
+    }
+    @Test
+    public void add_private_app_valve_success_basic_auth_config() throws Exception {
+        // prepare
+        String json = "{ \n" +
+                "'privateApp': { \n" +
+                "    'secretKey': 'ze-supper-secret', \n" +
+                "    'authenticationEntryPointName': 'BASIC_AUTH', \n" +
+                "    'realmName': 'ze_realm' \n" +
+                "}\n" +
+                "}";
+        String xml = "" +
+                "<Valve className='com.cloudbees.tomcat.valves.PrivateAppValve' \n" +
+                "   authenticationEntryPointName='BASIC_AUTH' \n" +
+                "   realmName='ze_realm' \n" +
+                "   secretKey='ze-supper-secret'/>";
+
+        test_private_app_valve(json, xml);
+
+
+    }
+
+    private void test_private_app_valve(String metadataDotJson, String expectedXml) throws IOException {
+        Metadata metadata = Metadata.Builder.fromJsonString(metadataDotJson, true);
+        ContextXmlBuilder contextXmlBuilder = new ContextXmlBuilder(metadata, appDir);
         // run
         contextXmlBuilder.addPrivateAppValve(metadata, serverXml, contextXml);
 
@@ -68,13 +96,8 @@ public class ContextXmlBuilderTest {
 
         // XmlUtils.flush(serverXml, System.out);
 
-        String xml = "" +
-                "<Valve className='com.cloudbees.tomcat.valves.PrivateAppValve' \n" +
-                "   secretKey='ze-supper-secret'/>";
 
-        assertThat(the(privateAppValve), isEquivalentTo(the(xml)));
-
-
+        assertThat(the(privateAppValve), isEquivalentTo(the(expectedXml)));
     }
 
     @Test
