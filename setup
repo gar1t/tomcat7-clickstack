@@ -12,6 +12,7 @@ install_jmx_invoker
 install_jmxtrans_agent
 install_java_control_functions
 install_server_config
+install_web_container_extras
 install_app
 write_metadata
 write_config

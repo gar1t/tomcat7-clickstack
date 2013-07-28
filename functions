@@ -4,6 +4,7 @@
 
 catalina_base="$app_dir/server"
 tomcat7_dir="$app_dir/tomcat7"
+catalina_home="$app_dir/tomcat7"
 config="$control_dir/config"
 
 create_app_skel() {
@@ -38,6 +39,10 @@ install_tomcat7() {
 install_jmx_invoker() {
    cp $plugin_dir/lib/cloudbees-jmx-invoker-jar-with-dependencies.jar $genapp_dir/lib/
    install -m 750 $plugin_dir/control/jmx_invoker $control_dir
+}
+
+install_web_container_extras() {
+   cp $plugin_dir/lib/cloudbees-web-container-extras.jar $catalina_home/lib/
 }
 
 install_jmxtrans_agent() {

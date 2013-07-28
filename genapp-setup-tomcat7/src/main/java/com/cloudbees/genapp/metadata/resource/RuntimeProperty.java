@@ -16,6 +16,7 @@ package com.cloudbees.genapp.metadata.resource;
  * limitations under the License.
  */
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -32,16 +33,20 @@ public class RuntimeProperty {
      * @param section The parent section of the parameters.
      * @param parameters A key-value map of the parameters.
      */
-
     public RuntimeProperty (String section, Map<String, String> parameters) {
         this.parameters = parameters;
         this.section = section;
+    }
+
+    public RuntimeProperty (String section) {
+        this(section, new HashMap<String, String>());
     }
 
     public String getSectionName() {
         return section;
     }
 
+    @Nullable
     public String getParameter(String parameterName) {
         return parameters.get(parameterName);
     }
