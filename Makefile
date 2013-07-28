@@ -19,9 +19,9 @@ clean:
 	rm -rf lib
 	cd java; make clean
 
-tomcat7_ver = 7.0.41
+tomcat7_ver = 7.0.42
 tomcat7_url = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
-tomcat7_md5 = 2c1b69b49166a5b8f8db585af80a2a10
+tomcat7_md5 = bf430c73797f5c0ef6c7f40fad5d7833
 
 lib/tomcat7.zip: lib lib/genapp-setup-tomcat7.jar
 	curl -fLo lib/tomcat7.zip "$(tomcat7_url)"
