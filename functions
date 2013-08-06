@@ -87,6 +87,7 @@ install_app() {
 
     # Allows for server.xml override by customers.
     if [ -e "$_app_root/META-INF/server.xml" ]; then
+        echo "Overwrite Tomcat server.xml with customer provided version"
         install -m 640 "$_app_root/META-INF/server.xml" "$catalina_base/conf/"
     fi
 
