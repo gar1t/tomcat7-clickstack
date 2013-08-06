@@ -94,25 +94,25 @@
                resultAlias="classes_loaded"/>
 
         <!-- TOMCAT -->
-        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="requestCount"
+        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="requestCount" type="counter"
                resultAlias="request_requestCount"/>
-        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="errorCount"
+        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="errorCount" type="counter"
                resultAlias="request_errorCount"/>
-        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="bytesReceived"
+        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="bytesReceived" type="counter"
                resultAlias="request_bytesReceived"/>
-        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="bytesSent"
+        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="bytesSent" type="counter"
                resultAlias="request_bytesSent"/>
-        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="processingTime"
+        <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="processingTime" type="counter"
                resultAlias="request_processingTime"/>
 
         <!-- APPLICATION -->
         <query objectName="Catalina:type=Manager,context=/,host=localhost" attribute="activeSessions"
                resultAlias="application_activeSessions"/>
-        <query objectName="Catalina:type=Manager,context=/,host=localhost" attribute="expiredSessions"
+        <query objectName="Catalina:type=Manager,context=/,host=localhost" attribute="expiredSessions" type="counter"
                resultAlias="application_expiredSessions"/>
     </queries>
 
-    <outputWriter class="org.jmxtrans.agent.FileOverwriterOutputWriter">
+    <outputWriter class="org.jmxtrans.agent.SummarizingFileOverwriterOutputWriter">
       <fileName>${tomcat7_metrics_data_file:jmxtrans-agent.data}</fileName>
     </outputWriter>
 
