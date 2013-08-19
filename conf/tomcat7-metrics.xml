@@ -105,6 +105,12 @@
         <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="processingTime" type="counter"
                resultAlias="request_processingTime"/>
 
+        <!-- DATA SOURCE -->
+        <query objectName="Catalina:type=DataSource,context=/,host=localhost,class=javax.sql.DataSource,name=*" attribute="numActive"
+               resultAlias="datasource_%name%_numActive" />
+        <query objectName="tomcat.jdbc:type=ConnectionPool,engine=Catalina,context=/,host=localhost,class=org.apache.tomcat.jdbc.pool.DataSource,name=*" attribute="WaitCount"
+               resultAlias="datasource_%name%_numWait" />
+
         <!-- APPLICATION -->
         <query objectName="Catalina:type=Manager,context=/,host=localhost" attribute="activeSessions"
                resultAlias="application_activeSessions"/>
