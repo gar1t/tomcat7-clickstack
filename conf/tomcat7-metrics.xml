@@ -81,6 +81,16 @@
         <query objectName="java.lang:type=MemoryPool,name=PS Survivor Space" attribute="PeakUsage" key="committed"
                resultAlias="memory_ps_survivor_space_peakCommitted"/>
 
+        <!-- GARBAGE COLLECTOR -->
+        <query objectName="java.lang:type=GarbageCollector,name=PS MarkSweep" attribute="CollectionCount" type="counter"
+               resultAlias="gc_ps_marksweep_collection_count"/>
+        <query objectName="java.lang:type=GarbageCollector,name=PS MarkSweep" attribute="CollectionTime" type="counter"
+               resultAlias="gc_ps_marksweep_collection_time"/>
+
+        <query objectName="java.lang:type=GarbageCollector,name=PS Scavenge" attribute="CollectionCount" type="counter"
+               resultAlias="gc_ps_scavenge_collection_count"/>
+        <query objectName="java.lang:type=GarbageCollector,name=PS Scavenge" attribute="CollectionTime" type="counter"
+               resultAlias="gc_ps_scavenge_collection_time"/>
 
         <!-- THREADING -->
         <query objectName="java.lang:type=Threading" attribute="ThreadCount"
