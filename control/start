@@ -20,6 +20,7 @@ $java \
   -Dcatalina.home=\"$catalina_home\" \
   -Dcatalina.base=\"$catalina_base\" \
   -Djava.io.tmpdir=\"$app_tmp\" \
+  -Dapp_extra_files=\"$app_extra_files\" \
   $catalina_opts \
   -cp \"$java_classpath\" \
   org.apache.catalina.startup.Bootstrap \

@@ -5,6 +5,7 @@
 catalina_base="$app_dir/server"
 tomcat7_dir="$app_dir/tomcat7"
 catalina_home="$app_dir/tomcat7"
+app_extra_files="$app_dir/app-extra-files"
 config="$control_dir/config"
 
 create_app_skel() {
@@ -13,6 +14,7 @@ create_app_skel() {
     mkdir -m 750 "$app_dir/lib"
     mkdir -m 750 "$app_dir/conf"
     mkdir -m 770 "$app_dir/tmp"
+    mkdir -m 770 $app_extra_files
 
     # We need to initialize those files as they are going to be sourced later.
     # Also, install_server_config step requires pre-existing files.
@@ -98,6 +100,15 @@ install_app() {
             cp "$_file" "$tomcat7_dir/lib/"
         fi
     done
+
+    # Process $APP_HOME/META-INF/extra-files
+    if [ -d "$_app_root/META-INF/extra-files" ]
+    then
+        echo "Copy files to $app_extra_files"
+        cp -rf $_app_root/META-INF/extra-files/* $app_extra_files
+    else
+        echo "No files to copy to $app_extra_files"
+    fi
 }
 
 write_metadata() {
@@ -117,6 +128,7 @@ write_config() {
     echo "log_dir=\"$log_dir\"" >> "$config"
     echo "catalina_home=\"$tomcat7_dir\"" >> "$config"
     echo "catalina_base=\"$catalina_base\"" >> "$config"
+    echo "app_extra_files=\"$app_extra_files\"" >> "$config"
 
     echo "port=$app_port" >> "$config"
     echo "java=\"$(find_java)\"" >> "$config"
