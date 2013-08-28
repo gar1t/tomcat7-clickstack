@@ -42,9 +42,9 @@ lib/genapp-setup-tomcat7.jar: $(JAVA_SOURCES) $(JAVA_JARS) lib
 	cp genapp-setup-tomcat7-*-jar-with-dependencies.jar \
 	$(CURDIR)/lib/genapp-setup-tomcat7.jar
 
-jmxtrans_agent_ver = 1.0.5
+jmxtrans_agent_ver = 1.0.6
 jmxtrans_agent_url = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
-jmxtrans_agent_md5 = 9e143ed7fee5e50cc2049cd8432457da
+jmxtrans_agent_md5 = aed0bb9c816ac3b32cf1d5d537dbb6e4
 
 lib/jmxtrans-agent.jar: lib
 	mkdir -p lib
