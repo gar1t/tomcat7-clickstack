@@ -115,6 +115,9 @@
         <query objectName="Catalina:type=GlobalRequestProcessor,name=*" attribute="processingTime" type="counter"
                resultAlias="request_processingTime"/>
 
+        <query objectName="Catalina:type=ThreadPool,name=*" attribute="currentThreadsBusy" resultAlias="thread_pool_currentThreadsBusy"/>
+        <query objectName="Catalina:type=ThreadPool,name=*" attribute="currentThreadCount" resultAlias="thread_pool_currentThreadCount"/>
+
         <!-- DATA SOURCE -->
         <query objectName="Catalina:type=DataSource,context=/,host=localhost,class=javax.sql.DataSource,name=*" attribute="numActive"
                resultAlias="datasource_%name%_numActive" />
