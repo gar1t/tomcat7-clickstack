@@ -25,10 +25,11 @@ java:
 
 tomcat7_ver = 7.0.42
 tomcat7_url = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
-tomcat7_md5 = bf430c73797f5c0ef6c7f40fad5d7833
+tomcat7_md5 = b6aebcbb5c026e157f2d8e33e9ad6f79
 
 lib/tomcat7.zip: lib lib/genapp-setup-tomcat7.jar
 	curl -fLo lib/tomcat7.zip "$(tomcat7_url)"
+	$(call check-md5,lib/tomcat7.zip,$(tomcat7_md5))
 	unzip -qd lib lib/tomcat7.zip
 	rm -rf lib/apache-tomcat-$(tomcat7_ver)/webapps
 	rm lib/tomcat7.zip

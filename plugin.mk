@@ -17,7 +17,8 @@ s3cfg = s3cfg
 UNAME := $(shell uname)
 
 ifeq ($(UNAME),Darwin)
-    check-md5 = echo "$(2)  $(1)" | md5 -r
+#   There is no fancy md5sum on OSX, so use a grep to compare sums
+    check-md5 = md5 -q $(1) | grep $(2)
 else
     check-md5 = echo "$(2)  $(1)" | md5sum --check
 endif
