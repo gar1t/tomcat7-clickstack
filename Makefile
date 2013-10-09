@@ -3,7 +3,11 @@ publish_bucket = cloudbees-clickstack
 publish_repo = testing
 publish_url = s3://$(publish_bucket)/$(publish_repo)/
 
-deps = java lib/tomcat7.zip lib/genapp-setup-tomcat7.jar lib/cloudbees-jmx-invoker-jar-with-dependencies.jar lib/jmxtrans-agent.jar lib/cloudbees-web-container-extras.jar
+deps = lib/tomcat7.zip \
+       lib/genapp-setup-tomcat7.jar \
+       lib/cloudbees-jmx-invoker-jar-with-dependencies.jar \
+       lib/jmxtrans-agent.jar \
+       lib/cloudbees-web-container-extras.jar
 
 pkg_files = control functions server setup lib java conf
 
@@ -14,14 +18,6 @@ lib:
 
 clean:
 	rm -rf lib
-
-java_repo = https://github.com/CloudBees-community/java-clickstack.git
-java_commit = dc6255f9c1553ea097395f2c3ed70e29ba879e35
-
-java:
-	git clone $(java_repo) java
-	cd java; git reset --hard 
-	cd java; rm -rf .git*; make deps
 
 tomcat7_ver = 7.0.42
 tomcat7_url = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
