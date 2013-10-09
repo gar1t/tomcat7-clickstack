@@ -9,7 +9,7 @@ deps = lib/tomcat7.zip \
        lib/jmxtrans-agent.jar \
        lib/cloudbees-web-container-extras.jar
 
-pkg_files = control functions server setup lib java conf
+pkg_files = control functions server setup lib conf
 
 include plugin.mk
 
