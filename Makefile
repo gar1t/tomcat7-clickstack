@@ -13,6 +13,9 @@ pkg_files = control functions server setup lib conf
 
 include plugin.mk
 
+clean::
+	cd genapp-setup-tomcat7; mvn clean
+
 tomcat7_ver = 7.0.42
 tomcat7_src = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
 tomcat7_md5 = b6aebcbb5c026e157f2d8e33e9ad6f79
