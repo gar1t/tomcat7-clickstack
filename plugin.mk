@@ -40,7 +40,7 @@ get-file = @ \
 
 all: pkg
 
-clean: clean-deps clean-pkg
+clean:: clean-deps clean-pkg
 
 deps: $(deps)
 
