@@ -23,12 +23,12 @@ else
     check-md5 = echo "$(2)  $(1)" | md5sum --check
 endif
 
-define check-val
-  @if [ "$1" = "" ]; then \
-    echo "Missing required Makefile variable $2"; \
-    exit 1; \
-  fi
-endef
+check-val = @ \
+    if [ "$1" = "" ]; then \
+        echo "Missing required Makefile variable $2"; \
+        exit 1; \
+    fi;
+
 
 #===================================================================
 # Targets
