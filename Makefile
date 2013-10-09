@@ -30,11 +30,14 @@ repackage-tomcat7 = @ \
     cd ../..; \
     rm -rf lib/apache-tomcat-$(tomcat7_ver)
 
+setup_tomcat7_sources = $(shell find genapp-setup-tomcat7/src -name "*.java")
+setup_tomcat7_jars = $(shell find genapp-setup-tomcat7/target -name "*.jar")
+
+lib/genapp-setup-tomcat7.jar: $(setup_tomcat7_sources) $(setup_tomcat7_jars)
+	mkdir -p lib
 	cd genapp-setup-tomcat7; \
-	mvn -q clean test assembly:single; \
-	cd target; \
-	cp genapp-setup-tomcat7-*-jar-with-dependencies.jar \
-	$(CURDIR)/lib/genapp-setup-tomcat7.jar
+	mvn -q test assembly:single; \
+	cp target/genapp-setup-tomcat7-*-jar-with-dependencies.jar lib/genapp-setup-tomcat7.jar
 
 jmxtrans_agent_ver = 1.0.6
 jmxtrans_agent_url = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
