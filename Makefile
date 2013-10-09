@@ -40,28 +40,22 @@ lib/genapp-setup-tomcat7.jar: $(setup_tomcat7_sources) $(setup_tomcat7_jars)
 	cp target/genapp-setup-tomcat7-*-jar-with-dependencies.jar lib/genapp-setup-tomcat7.jar
 
 jmxtrans_agent_ver = 1.0.6
-jmxtrans_agent_url = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
+jmxtrans_agent_src = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
 jmxtrans_agent_md5 = 58be0f2268d4dfd59fb10b8eab27ec7f
 
-lib/jmxtrans-agent.jar: | lib
-	mkdir -p lib
-	curl -fLo lib/jmxtrans-agent.jar "$(jmxtrans_agent_url)"
-	$(call check-md5,lib/jmxtrans-agent.jar,$(jmxtrans_agent_md5))
+lib/jmxtrans-agent.jar:
+	$(call get-file,$@,$(jmxtrans_agent_src),$(jmxtrans_agent_md5))
 
 jmx_invoker_ver = 1.0.2
 jmx_invoker_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-jmx-invoker/$(jmx_invoker_ver)/cloudbees-jmx-invoker-$(jmx_invoker_ver)-jar-with-dependencies.jar
 jmx_invoker_md5 = c880f7545775529cfce6ea6b67277453
 
-lib/cloudbees-jmx-invoker-jar-with-dependencies.jar: | lib
-	mkdir -p lib
-	curl -fLo lib/cloudbees-jmx-invoker-jar-with-dependencies.jar "$(jmx_invoker_src)"
-	$(call check-md5,lib/cloudbees-jmx-invoker-jar-with-dependencies.jar,$(jmx_invoker_md5))
+lib/cloudbees-jmx-invoker-jar-with-dependencies.jar:
+	$(call get-file,$@,$(jmx_invoker_src),$(jmx_invoker_md5))
 
 cloudbees_web_container_extras_ver = 1.0.1
 cloudbees_web_container_extras_src = http://repo1.maven.org/maven2/com/cloudbees/cloudbees-web-container-extras/$(cloudbees_web_container_extras_ver)/cloudbees-web-container-extras-$(cloudbees_web_container_extras_ver).jar
 cloudbees_web_container_extras_md5 = c63a49c5a8071a0616c6696c3e6ed32a
 
-lib/cloudbees-web-container-extras.jar: | lib
-	mkdir -p lib
-	curl -fLo lib/cloudbees-web-container-extras.jar "$(cloudbees_web_container_extras_src)"
-	$(call check-md5,lib/cloudbees-web-container-extras.jar,$(cloudbees_web_container_extras_md5))
+lib/cloudbees-web-container-extras.jar:
+	$(call get-file,$@,$(cloudbees_web_container_extras_src),$(cloudbees_web_container_extras_md5))
