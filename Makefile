@@ -37,7 +37,8 @@ lib/genapp-setup-tomcat7.jar: $(setup_tomcat7_sources) $(setup_tomcat7_jars)
 	mkdir -p lib
 	cd genapp-setup-tomcat7; \
 	mvn -q test assembly:single; \
-	cp target/genapp-setup-tomcat7-*-jar-with-dependencies.jar lib/genapp-setup-tomcat7.jar
+	cp target/genapp-setup-tomcat7-*-jar-with-dependencies.jar \
+	   ../lib/genapp-setup-tomcat7.jar
 
 jmxtrans_agent_ver = 1.0.6
 jmxtrans_agent_src = http://repo1.maven.org/maven2/org/jmxtrans/agent/jmxtrans-agent/$(jmxtrans_agent_ver)/jmxtrans-agent-$(jmxtrans_agent_ver).jar
