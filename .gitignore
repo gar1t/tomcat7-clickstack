@@ -1,12 +1,5 @@
-.DS_Store
-.classpath
-.project
-.settings
-*.iml
-.idea
-/lib
-/tomcat7-plugin.zip
-/pkg
-/s3cfg
-/java
-target
+lib
+tomcat7-plugin.zip
+pkg
+s3cfg
+genapp-setup-tomcat7
