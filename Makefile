@@ -14,7 +14,7 @@ pkg_files = control functions server setup lib java conf
 include plugin.mk
 
 tomcat7_ver = 7.0.42
-tomcat7_url = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
+tomcat7_src = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
 tomcat7_md5 = b6aebcbb5c026e157f2d8e33e9ad6f79
 
 lib/tomcat7.zip: | lib
