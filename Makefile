@@ -17,20 +17,19 @@ tomcat7_ver = 7.0.42
 tomcat7_src = http://archive.apache.org/dist/tomcat/tomcat-7/v$(tomcat7_ver)/bin/apache-tomcat-$(tomcat7_ver).zip
 tomcat7_md5 = b6aebcbb5c026e157f2d8e33e9ad6f79
 
-lib/tomcat7.zip: | lib
-	curl -fLo lib/tomcat7.zip "$(tomcat7_url)"
-	$(call check-md5,lib/tomcat7.zip,$(tomcat7_md5))
-	unzip -qd lib lib/tomcat7.zip
-	rm -rf lib/apache-tomcat-$(tomcat7_ver)/webapps
-	rm lib/tomcat7.zip
-	cd lib/apache-tomcat-$(tomcat7_ver); \
-	zip -rqy ../tomcat7.zip *
-	rm -rf lib/apache-tomcat-$(tomcat7_ver)
+lib/tomcat7.zip:
+	$(call get-file,$@,$(tomcat7_src),$(tomcat7_md5))
+	$(call repackage-tomcat7)
 
-JAVA_SOURCES := $(shell find genapp-setup-tomcat7/src -name "*.java")
-JAVA_JARS = $(shell find genapp-setup-tomcat7/target -name "*.jar")
+repackage-tomcat7 = @ \
+    unzip -qd lib lib/tomcat7.zip; \
+    rm -rf lib/apache-tomcat-*/webapps; \
+    rm lib/tomcat7.zip; \
+    cd lib/apache-tomcat-*; \
+    zip -rqy ../tomcat7.zip *; \
+    cd ../..; \
+    rm -rf lib/apache-tomcat-$(tomcat7_ver)
 
-lib/genapp-setup-tomcat7.jar: $(JAVA_SOURCES) $(JAVA_JARS) | lib
 	cd genapp-setup-tomcat7; \
 	mvn -q clean test assembly:single; \
 	cd target; \
